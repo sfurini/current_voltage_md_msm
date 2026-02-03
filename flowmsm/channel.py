@@ -743,6 +743,7 @@ class Channel(object):
         I = np.empty(len(self.dVs_input))
         I_std = np.zeros(len(self.dVs_input))
         for idV, dV in enumerate(self.dVs_input):
+            print('DIO PORCO',dV)
             current = self.msm_input[dV].current_from_md(lag, i_boots_input)
             I[idV] = np.mean(current)
             if len(current) > 1:
