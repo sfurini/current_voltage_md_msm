@@ -7,11 +7,13 @@ from multiprocessing import Process
 
 import flowmsm
 
-prefix = 'data/mthk'
-channel_name = 'mthk'
-dVs = [250, 200, 150, 100, 50, -50, -100, -150, -200, -250]
-dVs_fitting = [-250, 250]
+# Use this for MthK channel
+#prefix = 'data/mthk'
+#channel_name = 'mthk'
+#dVs = [250, 200, 150, 100, 50, -50, -100, -150, -200, -250]
+#dVs_fitting = [-250, 250]
 
+# Use this for KcsA channel
 prefix = 'data/5vk6'
 channel_name = '5vk6'
 dVs = [400, 350, 300, 250, 200, 100, -100, -200]

@@ -7,6 +7,7 @@ from multiprocessing import Process
 
 import flowmsm
 
+# Use this for MthK channel
 #prefix = 'data/mthk'
 #channel_name = 'mthk'
 #dVs = [250, 200, 150, 100, 50, -50, -100, -150, -200, -250]
@@ -26,6 +27,7 @@ import flowmsm
 #   250:[29.56834286,40.64502857,30.84994286,27.8748,29.7972,39.82114286],
 #}
 
+# Use this for KcsA channel
 prefix = 'data/5vk6'
 channel_name = '5vk6'
 dVs = [400, 350, 300, 250, 200, 100, -100, -200]
