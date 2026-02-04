@@ -1020,7 +1020,6 @@ class MSM(object):
                 i_boot = [ind for ind in self.i_boots if ind >= 0]
             return [self.current_from_md(lag, ind) for ind in i_boot]
         else:
-            print('DIO CANE',i_boot,self.Fmd[i_boot])
             return scale*np.sum(self.Fmd[i_boot][lag]*self.Tmd[i_boot][lag]*self.probability_md(i_boot, lag).reshape((1,-1)))
 
     def current_from_Q(self, lag, i_boot):
