@@ -1,0 +1,25 @@
+; Include forcefield parameters
+#include "./charmm36m.ff/forcefield.itp"
+
+; Include chain topologies
+#include "topol_Protein.itp"
+#include "POPC.itp"
+
+
+; Include water topology
+#include "./charmm36m.ff/tip3p.itp"
+
+; Include topology for ions
+#include "./charmm36m.ff/ions.itp"
+
+[ system ]
+; Name
+MthK_open_state 
+
+[ molecules ]
+; Compound        #mols
+Protein		1
+POT	244
+POPC	1
+CLA	232
+SOL	16900
