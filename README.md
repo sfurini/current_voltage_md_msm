@@ -1,5 +1,6 @@
 # Current-voltage characteristics of potassium channels estimated by Molecular Dynamics simulations and Markov State Models
 
+* md: MD input files
 * data: discretized MD trajectories. Each file contains:
     * dt: dumping time of the MD trajectories in ns
     * states: an np.array with shape (number of states) x (number of binding sites).
