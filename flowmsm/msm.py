@@ -14,7 +14,34 @@ from . import utils_channel
 from . import utils_model
 
 class TransitionMatrix(object):
+    """
+    Reads discretized MD trajectories and estimates transition matrixes at multiple lag times,
+    optionally with bootstrapping over the trajectories.
+    """
     def __init__(self, file_dtrajs):
+        """
+        Load the discretized MD trajectories from a .npz file
+
+        Parameters
+        ----------
+        file_dtrajs: str
+            Path to a .npz file containing:
+                dt: float, dumping time of the MD trajectories in ns
+                states: np.array, shape (number of states) x (number of binding sites)
+                dtrajs: list of np.array, discretized trajectories (indexes of states)
+                ftrajs: list of np.array, number of conduction events along each trajectory
+
+        Attributes
+        ----------
+        dt: float
+            Dumping time of the MD trajectories in ns
+        states: np.array
+            All the possible states
+        dtrajs: list of np.array
+            Discretized trajectories
+        ftrajs: list of np.array
+            Number of conduction events along each trajectory
+        """
         data = np.load(file_dtrajs)
         self.dt = data['dt']
         self.states = data['states']
@@ -22,6 +49,35 @@ class TransitionMatrix(object):
         self.ftrajs = data['ftrajs']
         print('Read {} discrete trajectories with timestep {} ns'.format(len(self.dtrajs), self.dt))
     def estimate_T(self, lag, index_trajs, min_block_size = 10000):
+        """
+        Estimate the transition matrix at a given lag time from a subset of the trajectories.
+
+        States that are never reached from another state, that never go to another state,
+        or that are never visited are iteratively removed until every remaining state has
+        a non-zero stationary probability.
+
+        Parameters
+        ----------
+        lag: int
+            Lag time, expressed as a multiple of the elementary timestep dt
+        index_trajs: array-like of int
+            Indexes (into self.dtrajs / self.ftrajs) of the trajectories to use
+        min_block_size: int
+            Trajectories shorter than this number of samples (after state removal) are skipped
+
+        Return
+        ------
+        T: np.array, shape (n_states_local, n_states_local)
+            Transition matrix, T[i,j] = probability of going from state j to state i
+        states_local: np.array
+            States kept after removing zero-probability/dead-end states
+        disc_trajs_local: list of np.array
+            Discretized trajectories re-indexed to match states_local
+        f_trajs_local: list of np.array
+            Conduction-event trajectories re-indexed to match states_local
+        n_samples: int
+            Total number of transition counts used to estimate T
+        """
         n_states = len(self.states)
         C_full = np.zeros((n_states, n_states))
         for i_traj in index_trajs:
@@ -118,6 +174,26 @@ class TransitionMatrix(object):
             print(states_local[i_state,:], 'prob.:', prob_states[i_state], '#states to i:',np.sum(T[i_state,:] > 0), '#states from i:',np.sum(T[:,i_state] > 0))
         return T, states_local, disc_trajs_local, f_trajs_local, n_samples
     def fit(self, file_matrix, lags, n_boots):
+        """
+        Estimate transition matrixes at multiple lag times, using all trajectories and
+        also using bootstrapped subsets of trajectories, and pickle the results to file.
+
+        For each lag in lags, this writes to file_matrix: the transition matrix, the number
+        of samples used, and the states, first computed using all trajectories (i_boot = -1),
+        then repeated for each of the n_boots bootstrapped trajectory subsets. The discretized
+        and conduction-event trajectories used at the first lag are also stored (i_boot = -1
+        and each bootstrap), so that models can later be rebuilt directly from state indexes.
+
+        Parameters
+        ----------
+        file_matrix: str
+            Path of the output pickle file
+        lags: list of int
+            Lag times to estimate, expressed as multiples of the elementary timestep dt
+        n_boots: int
+            Number of bootstrapped datasets to generate, each built by resampling with
+            replacement half of the trajectories
+        """
         fout_pk = open(file_matrix,'wb')
         index_trajs = np.arange(len(self.dtrajs), dtype = int)
         indexes_boot = [np.random.choice(index_trajs, size = int(np.floor(0.5*len(index_trajs))), replace = True) for i_boot in range(n_boots)]
